@@ -5,6 +5,7 @@ const api = process.env.APIURL;
 export default {
     async getVerbConjugation(verb) {
         let res = await axios.get(api + "/c/" + verb);
+        console.log(api);
         return res.data;
     },
     async getLanguage(text) {
