@@ -2,7 +2,6 @@
 # https://hub.docker.com/_/node
 FROM node:12-alpine
 
-ENV PORT=8080
 RUN npm install -g http-server
 WORKDIR .
 
