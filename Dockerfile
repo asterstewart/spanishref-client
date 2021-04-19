@@ -3,6 +3,8 @@
 FROM node:12-alpine
 
 ENV PORT=8080
+RUN npm install -g http-server
+WORKDIR .
 
 # Create and change to the app directory.
 WORKDIR /usr/src/app
@@ -13,12 +15,14 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 
 # Install production dependencies.
-RUN npm i
+RUN npm install
 
 # Copy local code to the container image.
-COPY . ./
+COPY . .
 
 RUN npm run build
 
-# Run the web service on container startup.
-CMD [ "npm", "run", "start" ]
+EXPOSE 8080
+
+CMD [ "http-server", "dist" ]
+
