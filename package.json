@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "start": "serve -p $PORT dist/",
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint"
@@ -21,6 +22,7 @@
     "lint-staged": "^9.5.0",
     "sass": "^1.32.0",
     "sass-loader": "^10.0.0",
+    "serve": "^11.3.2",
     "vue-cli-plugin-vuetify": "~2.3.1",
     "vue-template-compiler": "^2.6.11",
     "vuetify-loader": "^1.7.0"
