@@ -1,0 +1,336 @@
+<template>
+  <v-app>
+    <v-main>
+      <div class="home">
+          <h1 class="text-h4 text-md-h2 text-center" id="brand-logo" v-if="!resultLoading.loadedOnce">SpanishReference</h1>
+        <h1 class="text-h6 text-center text-md-h6" id="brand-logo-small" v-if="resultLoading.loadedOnce">SpanishReference</h1>
+        <v-container fluid>
+          <v-container>
+            <v-form v-on:submit="runLookup">
+              <v-row justify="center">
+                <v-col
+                    cols="12"
+                    md="6"
+                >
+                  <v-text-field
+                      v-model="lookup"
+                      label="Verb or Phrase"
+                      id="verb-input"
+                      v-bind:class="{ 'mt-4' : !resultLoading.loadedOnce }"
+                      outlined
+                      autofocus
+                      required
+                      :rules="[rules.required]"
+                  >
+                    <template v-slot:append>
+                      <v-fade-transition leave-absolute>
+                        <v-progress-circular
+                            v-if="resultLoading.loading"
+
+                            size="24"
+                            color="info"
+                            indeterminate
+                        ></v-progress-circular>
+                      </v-fade-transition>
+                      <v-fade-transition leave-absolute>
+                        <v-btn icon v-if="!resultLoading.loading" @click="runLookup" style="bottom: 6px"><v-icon>mdi-magnify</v-icon></v-btn>
+                      </v-fade-transition>
+                    </template>
+                  </v-text-field>
+                </v-col>
+              </v-row>
+            </v-form>
+              <v-skeleton-loader v-if="resultLoading.loading" type="article" width="550px" style="margin: auto"></v-skeleton-loader>
+              <div v-if="resultLoading.loadedTitle" class="text-center">
+                <p class="display-1 text--primary">{{ headType }}</p> <p class="text--primary">{{ subType }}</p><p v-if="resultLoading.infoLoaded" class="text--primary">{{ info_text }}</p>
+              </div>
+            <v-divider v-if="resultLoading.loaded"></v-divider><br>
+      <span v-if="resultLoading.loaded">
+      <v-simple-table>
+        <thead>
+        <strong>Indicative</strong>
+        <tr>
+          <th class="text-left">
+
+          </th>
+          <th class="text-left">
+            Present
+          </th>
+          <th class="text-left">
+            Preterite
+          </th>
+          <th class="text-left">
+            Imperfect
+          </th>
+          <th class="text-left">
+            Future
+          </th>
+          <th class="text-left">
+            Conditional
+          </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr v-for="person in indicativeForms" >
+          <td v-for="form in person">
+            {{ form }}
+          </td>
+        </tr>
+        </tbody>
+      </v-simple-table><br>
+        <v-divider></v-divider><br>
+        <v-simple-table>
+        <thead>
+        <strong>Subjunctive</strong>
+        <tr>
+          <th class="text-left">
+
+          </th>
+          <th class="text-left">
+            Present
+          </th>
+          <th class="text-left">
+            Imperfect
+          </th>
+          <th class="text-left">
+            Future
+          </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr v-for="person in subjunctiveForms" >
+          <td v-for="form in person">
+            {{ form }}
+          </td>
+        </tr>
+        </tbody>
+      </v-simple-table>
+        <br>
+        <v-divider></v-divider><br>
+        <v-simple-table>
+        <thead>
+        <strong>Imperative</strong>
+        <tr>
+          <th class="text-left">
+
+          </th>
+          <th class="text-left">
+            Affirmative
+          </th>
+          <th class="text-left">
+            Negative
+          </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr v-for="person in imperativeForms" >
+          <td v-for="form in person">
+            {{ form }}
+          </td>
+        </tr>
+        </tbody>
+      </v-simple-table>
+        </span>
+          </v-container>
+        </v-container>
+      </div>
+    </v-main>
+    <v-footer padless>
+      <v-col
+          class="text-center"
+          cols="12"
+      >
+        Created by Nathan Stewart in 2021. Credit to <a target="_blank" href="https://github.com/ghidinelli/fred-jehle-spanish-verbs">Spanish Verb Database</a> by Fred Jehle and Brian Ghidinelli. This website is licensed under <a target="_blank" href="https://creativecommons.org/licenses/by-nc-sa/3.0/">CC BY-NC-SA 3.0</a> and available on <a target="_blank" href="https://github.com/ntstew/spanishref-client">Github</a>.
+      </v-col>
+    </v-footer>
+  </v-app>
+
+</template>
+
+<script>
+import LookupService from "@/services/LookupService.js";
+export default {
+  data() {
+    return {
+      resultLoading: {loadedOnce: false, loadedTitle: false, loading: false, loaded: false, infoLoaded: false},info_text: '', lookupSave: '', lookup: '', headType:"",subType:"", indicativeForms: {yo:['yo'],tu:['tú'],ud:['él/ella/usted'],nos:['nosotros'],vos:['vosotros'],uds:['ellos/ellas/ustedes']},
+      subjunctiveForms: {yo:['yo'],tu:['tú'],ud:['él/ella/usted'],nos:['nosotros'],vos:['vosotros'],uds:['ellos/ellas/ustedes']}, imperativeForms: {yo:['yo'],tu:['tú'],ud:['él/ella/usted'],nos:['nosotros'],vos:['vosotros'],uds:['ellos/ellas/ustedes']},
+      rules: {
+        required: value => !!value || 'Please enter a verb.'
+      }
+    }
+  },
+  methods: {
+    runLookup: function (event) {
+      this.$set(this.resultLoading, 'loaded', false);
+      this.$set(this.resultLoading, 'loading', true);
+      this.$set(this.resultLoading, 'loadedTitle', false);
+      this.$set(this.resultLoading, 'infoLoaded', true);
+      if (event) {
+        event.preventDefault();
+      }
+      let lookup = this.lookup;
+      if (this.lookupSave !== '') {
+        lookup = this.lookupSave;
+      }
+      if (lookup === "") {
+        return;
+      }
+      this.$set(this.resultLoading, 'loading', true);
+      LookupService.getVerbConjugation(lookup).then((res => {
+        if (res === '') {
+          LookupService.getLanguage(lookup).then ((res => {
+            if (res === "es") {
+              console.log('found spanish')
+              // Translate to English and display
+              LookupService.translateText("es", lookup).then((res => {
+                this.headType = res;
+                this.subType = lookup;
+                this.$set(this.resultLoading, 'loadedTitle', true);
+                this.$set(this.resultLoading, 'loading', false);
+                this.$set(this.resultLoading, 'loadedOnce', true);
+                this.$set(this.rules, 'required', true);
+                console.log('translated spanish')
+              }));
+            } else if (res === "en") {
+              console.log('found english')
+              LookupService.translateText("en", lookup).then((res => {
+                console.log(res);
+                LookupService.isValidVerb(res).then((valid => {
+                  if (valid === true) {
+                    this.lookupSave = res;
+                    this.runLookup();
+                    console.log('valid, ran lookup')
+                  } else {
+                    this.headType = res;
+                    this.subType = lookup;
+                    this.$set(this.resultLoading, 'loadedTitle', true);
+                    this.$set(this.resultLoading, 'loadedOnce', true);
+                    this.$set(this.resultLoading, 'loading', false);
+                    this.$set(this.rules, 'required', true);
+                    console.log('not valid, translated')
+                  }
+                }));
+              }));
+            } else {
+              this.$set(this.rules, 'required', 'Please enter a valid verb or phrase.');
+              this.$set(this.resultLoading, 'loading', false);
+            }
+          }));
+          return;
+        }
+        this.$set(this.rules, 'required', true);
+        this.headType = res.infinitive.infinitive;
+        this.subType = res.infinitive.infinitive_english;
+        this.info_text = res.performer + " | " + res.tense;
+        res.conjugations.filter(form => form.mood === "Imperativo Afirmativo").forEach(form => {
+          this.$set(this.imperativeForms.yo, 1, form.form_1s);
+          this.$set(this.imperativeForms.tu, 1, form.form_2s);
+          this.$set(this.imperativeForms.ud, 1, form.form_2p);
+          this.$set(this.imperativeForms.nos, 1, form.form_1p);
+          this.$set(this.imperativeForms.vos, 1, form.form_3s);
+          this.$set(this.imperativeForms.uds, 1, form.form_3p);
+        });
+        res.conjugations.filter(form => form.mood === "Imperativo Negativo").forEach(form => {
+          this.$set(this.imperativeForms.yo, 2, form.form_1s);
+          this.$set(this.imperativeForms.tu, 2, form.form_2s);
+          this.$set(this.imperativeForms.ud, 2, form.form_2p);
+          this.$set(this.imperativeForms.nos, 2, form.form_1p);
+          this.$set(this.imperativeForms.vos, 2, form.form_3s);
+          this.$set(this.imperativeForms.uds, 2, form.form_3p);
+        });
+        res.conjugations.filter(form => form.mood === "Subjuntivo").forEach(form => {
+          switch (form.tense) {
+            case "Presente":
+              this.$set(this.subjunctiveForms.yo, 1, form.form_1s);
+              this.$set(this.subjunctiveForms.tu, 1, form.form_2s);
+              this.$set(this.subjunctiveForms.ud, 1, form.form_3s);
+              this.$set(this.subjunctiveForms.nos, 1, form.form_1p);
+              this.$set(this.subjunctiveForms.vos, 1, form.form_2p);
+              this.$set(this.subjunctiveForms.uds, 1, form.form_3p);
+              break;
+            case "Imperfecto":
+              this.$set(this.subjunctiveForms.yo, 2, form.form_1s);
+              this.$set(this.subjunctiveForms.tu, 2, form.form_2s);
+              this.$set(this.subjunctiveForms.ud, 2, form.form_3s);
+              this.$set(this.subjunctiveForms.nos, 2, form.form_1p);
+              this.$set(this.subjunctiveForms.vos, 2, form.form_2p);
+              this.$set(this.subjunctiveForms.uds, 2, form.form_3p);
+              break;
+            case "Futuro":
+              this.$set(this.subjunctiveForms.yo, 3, form.form_1s);
+              this.$set(this.subjunctiveForms.tu, 3, form.form_2s);
+              this.$set(this.subjunctiveForms.ud, 3, form.form_3s);
+              this.$set(this.subjunctiveForms.nos, 3, form.form_1p);
+              this.$set(this.subjunctiveForms.vos, 3, form.form_2p);
+              this.$set(this.subjunctiveForms.uds, 3, form.form_3p);
+              break;
+          }
+        });
+        res.conjugations.filter(form => form.mood === 'Indicativo').forEach(form => {
+          switch (form.tense) {
+            case "Presente":
+              this.$set(this.indicativeForms.yo, 1, form.form_1s);
+              this.$set(this.indicativeForms.tu, 1, form.form_2s);
+              this.$set(this.indicativeForms.ud, 1, form.form_3s);
+              this.$set(this.indicativeForms.nos, 1, form.form_1p);
+              this.$set(this.indicativeForms.vos, 1, form.form_2p);
+              this.$set(this.indicativeForms.uds, 1, form.form_3p);
+              break;
+            case "Pretérito":
+              this.$set(this.indicativeForms.yo, 2, form.form_1s);
+              this.$set(this.indicativeForms.tu, 2, form.form_2s);
+              this.$set(this.indicativeForms.ud, 2, form.form_3s);
+              this.$set(this.indicativeForms.nos, 2, form.form_1p);
+              this.$set(this.indicativeForms.vos, 2, form.form_2p);
+              this.$set(this.indicativeForms.uds, 2, form.form_3p);
+              break;
+            case "Imperfecto":
+              this.$set(this.indicativeForms.yo, 3, form.form_1s);
+              this.$set(this.indicativeForms.tu, 3, form.form_2s);
+              this.$set(this.indicativeForms.ud, 3, form.form_3s);
+              this.$set(this.indicativeForms.nos, 3, form.form_1p);
+              this.$set(this.indicativeForms.vos, 3, form.form_2p);
+              this.$set(this.indicativeForms.uds, 3, form.form_3p);
+              break;
+            case "Condicional":
+              this.$set(this.indicativeForms.yo, 5, form.form_1s);
+              this.$set(this.indicativeForms.tu, 5, form.form_2s);
+              this.$set(this.indicativeForms.ud, 5, form.form_3s);
+              this.$set(this.indicativeForms.nos, 5, form.form_1p);
+              this.$set(this.indicativeForms.vos, 5, form.form_2p);
+              this.$set(this.indicativeForms.uds, 5, form.form_3p);
+              break;
+            case "Futuro":
+              this.$set(this.indicativeForms.yo, 4, form.form_1s);
+              this.$set(this.indicativeForms.tu, 4, form.form_2s);
+              this.$set(this.indicativeForms.ud, 4, form.form_3s);
+              this.$set(this.indicativeForms.nos, 4, form.form_1p);
+              this.$set(this.indicativeForms.vos, 4, form.form_2p);
+              this.$set(this.indicativeForms.uds, 4, form.form_3p);
+              break;
+          }
+        });
+        console.log('valid verb easy')
+        this.$set(this.resultLoading, 'loading', false);
+        this.$set(this.resultLoading, 'loaded', true);
+        this.$set(this.resultLoading, 'loadedTitle', true);
+        this.$set(this.resultLoading, 'loadedOnce', true);
+        this.$set(this.resultLoading, 'infoLoaded', true);
+      })).catch((e) => {
+        this.$set(this.rules, 'required', 'Sorry, something went wrong.');
+        this.$set(this.resultLoading, 'loading', false);
+        console.log(e);
+      })
+    }
+  }
+}
+</script>
+
+<style>
+#brand-logo {
+  margin-top: 5%;
+}
+#brand-logo-small {
+  margin-top: 1%;
+}
+</style>
