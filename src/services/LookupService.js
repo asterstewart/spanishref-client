@@ -4,6 +4,7 @@ const api = "https://api.sr.nathanstewart.me";
 const key = process.env.APIKEY;
 export default {
     async getVerbConjugation(verb) {
+        console.log(key);
         let res = await axios.post(api + "/c", {
             verb: verb,
             key: key
