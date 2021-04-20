@@ -1,10 +1,14 @@
 import axios from "axios"
+const {SecretManagerServiceClient} = require('@google-cloud/secret-manager');
+const secretClient = new SecretManagerServiceClient();
+const [version] = secretClient.accessSecretVersion({
+    name: 'projects/674145050597/secrets/spanishreference_api_key/versions/1'
+});
+const key = version.payload.data.toString();
 
 const api = "https://api.sr.nathanstewart.me";
-
 export default {
     async getVerbConjugation(verb) {
-        const key = process.env.APIKEY;
         console.log(key);
         let res = await axios.post(api + "/c", {
             verb: verb,
@@ -13,7 +17,6 @@ export default {
         return res.data;
     },
     async getLanguage(text) {
-        const key = process.env.APIKEY;
         let res = await axios.post(api + "/l", {
             text: text,
             key: key
@@ -21,7 +24,6 @@ export default {
         return res.data;
     },
     async translateText(code, text) {
-        const key = process.env.APIKEY;
         let res = await axios.post(api + "/t", {
             origin: code,
             text: text,
@@ -30,7 +32,6 @@ export default {
         return res.data;
     },
     async isValidVerb(text) {
-        const key = process.env.APIKEY;
         let res = await axios.post(api + "/v", {
             verb: text,
             key: key
