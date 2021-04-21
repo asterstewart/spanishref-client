@@ -200,6 +200,7 @@ export default {
 },
     async getToken() {
       let t = await this.$auth.getTokenSilently();
+      console.log(t);
       return t;
     },
     login() {
