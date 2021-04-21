@@ -199,7 +199,9 @@ export default {
   return result;
 },
     async getToken() {
-      return await this.$auth.getTokenSilently();
+      let t = await this.$auth.getTokenSilently();
+      console.log(t);
+      return t;
     },
     login() {
       this.$auth.loginWithRedirect();
