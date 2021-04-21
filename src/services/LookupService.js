@@ -4,18 +4,18 @@ export default {
     async getVerbConjugation(verb, token) {
         let res = await axios.post(api + "/c", {
             verb: verb},
-            headers: {
+                                   {headers: {
                 'Authorization': `Bearer ${token}`
-            }
+                                   }}
         );
         return res.data;
     },
     async getLanguage(text, token) {
         let res = await axios.post(api + "/l", {
             text: text},
-            headers: {
+                                   {headers: {
                 'Authorization': `Bearer ${token}`
-            }
+            }}
         );
         return res.data;
     },
@@ -23,18 +23,18 @@ export default {
         let res = await axios.post(api + "/t", {
             origin: code,
             text: text},
-            headers: {
+                                   {headers: {
                 'Authorization': `Bearer ${token}`
-            }
+            }}
         );
         return res.data;
     },
     async isValidVerb(text, token) {
         let res = await axios.post(api + "/v", {
             verb: text},
-            headers: {
+                                   {headers: {
                 'Authorization': `Bearer ${token}`
-            }
+            }}
         );
         return res.data === true;
     }
