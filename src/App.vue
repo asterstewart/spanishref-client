@@ -1,7 +1,20 @@
 <template>
   <v-app>
     <v-main>
-      <div class="home">
+      <div class="greeter" v-if="!$auth.loading && !$auth.isAuthenticated">
+        <h1 class="text-h4 text-md-h2 text-center" id="brand-logo" v-if="!resultLoading.loadedOnce">SpanishReference</h1>
+        <h1 class="text-h6 text-center text-md-h6" id="brand-logo-small" v-if="resultLoading.loadedOnce">SpanishReference</h1>
+        <v-container fluid>
+          <v-container>
+            <v-alert  width="50%" style="margin: auto; margin-bottom: 30px;" prominent dense outlined type="error" v-if="loginState.error"><span class="text-h6">{{ loginState.errorDetail }} Try clearing your cookies.</span></v-alert>
+            <v-row justify="center">
+
+              <v-btn @click="login" color="primary">Log in<v-icon right>mdi-account-circle</v-icon></v-btn>
+            </v-row>
+          </v-container>
+        </v-container>
+      </div>
+      <div class="home" v-if="!$auth.loading && $auth.isAuthenticated">
           <h1 class="text-h4 text-md-h2 text-center" id="brand-logo" v-if="!resultLoading.loadedOnce">SpanishReference</h1>
         <h1 class="text-h6 text-center text-md-h6" id="brand-logo-small" v-if="resultLoading.loadedOnce">SpanishReference</h1>
         <v-container fluid>
@@ -131,11 +144,15 @@
         </tbody>
       </v-simple-table>
         </span>
+
           </v-container>
         </v-container>
       </div>
     </v-main>
+
     <v-footer padless>
+      <v-row  v-if="!$auth.loading && $auth.isAuthenticated" justify="center">            <v-btn @click="logout">Log out <v-icon right>mdi-logout</v-icon></v-btn>
+        <br><br></v-row>
       <v-col
           class="text-center"
           cols="12"
@@ -150,8 +167,17 @@
 <script>
 import LookupService from "@/services/LookupService.js";
 export default {
+  mounted() {
+    if (this.findGetParameter('error') !== null) {
+      this.$set(this.loginState, 'error', this.findGetParameter('error'));
+      this.$set(this.loginState, 'errorDetail', this.findGetParameter('error_description'));
+      this.$set(this.loginState, 'errorState', true);
+    }
+
+  },
   data() {
     return {
+      loginState: { errorState: false, error: '', errorDetail: '' },
       resultLoading: {loadedOnce: false, loadedTitle: false, loading: false, loaded: false, infoLoaded: false},info_text: '', lookupSave: '', lookup: '', headType:"",subType:"", indicativeForms: {yo:['yo'],tu:['tú'],ud:['él/ella/usted'],nos:['nosotros'],vos:['vosotros'],uds:['ellos/ellas/ustedes']},
       subjunctiveForms: {yo:['yo'],tu:['tú'],ud:['él/ella/usted'],nos:['nosotros'],vos:['vosotros'],uds:['ellos/ellas/ustedes']}, imperativeForms: {yo:['yo'],tu:['tú'],ud:['él/ella/usted'],nos:['nosotros'],vos:['vosotros'],uds:['ellos/ellas/ustedes']},
       rules: {
@@ -160,6 +186,29 @@ export default {
     }
   },
   methods: {
+    findGetParameter(parameterName) {
+  let result = null,
+      tmp = [];
+  location.search
+      .substr(1)
+      .split("&")
+      .forEach(function (item) {
+        tmp = item.split("=");
+        if (tmp[0] === parameterName) result = decodeURIComponent(tmp[1]);
+      });
+  return result;
+},
+    async getToken() {
+      return await this.$auth.getTokenSilently();
+    },
+    login() {
+      this.$auth.loginWithRedirect();
+    },
+    logout() {
+      this.$auth.logout({
+        returnTo: window.location.origin
+      });
+    },
     runLookup: function (event) {
       this.$set(this.resultLoading, 'loaded', false);
       this.$set(this.resultLoading, 'loading', true);
@@ -176,13 +225,13 @@ export default {
         return;
       }
       this.$set(this.resultLoading, 'loading', true);
-      LookupService.getVerbConjugation(lookup).then((res => {
+      LookupService.getVerbConjugation(lookup, this.getToken()).then((res => {
         if (res === '') {
-          LookupService.getLanguage(lookup).then ((res => {
+          LookupService.getLanguage(lookup, this.getToken()).then ((res => {
             if (res === "es") {
               console.log('found spanish')
               // Translate to English and display
-              LookupService.translateText("es", lookup).then((res => {
+              LookupService.translateText("es", lookup, this.getToken()).then((res => {
                 this.headType = res;
                 this.subType = lookup;
                 this.$set(this.resultLoading, 'loadedTitle', true);
@@ -193,9 +242,9 @@ export default {
               }));
             } else if (res === "en") {
               console.log('found english')
-              LookupService.translateText("en", lookup).then((res => {
+              LookupService.translateText("en", lookup, this.getToken()).then((res => {
                 console.log(res);
-                LookupService.isValidVerb(res).then((valid => {
+                LookupService.isValidVerb(res, this.getToken()).then((valid => {
                   if (valid === true) {
                     this.lookupSave = res;
                     this.runLookup();

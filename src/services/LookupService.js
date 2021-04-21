@@ -1,28 +1,40 @@
 import axios from "axios"
 const api = "https://api.sr.nathanstewart.me";
 export default {
-    async getVerbConjugation(verb) {
+    async getVerbConjugation(verb, token) {
         let res = await axios.post(api + "/c", {
-            verb: verb
+            verb: verb,
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
         });
         return res.data;
     },
-    async getLanguage(text) {
+    async getLanguage(text, token) {
         let res = await axios.post(api + "/l", {
-            text: text
+            text: text,
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
         });
         return res.data;
     },
-    async translateText(code, text) {
+    async translateText(code, text, token) {
         let res = await axios.post(api + "/t", {
             origin: code,
-            text: text
+            text: text,
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
         });
         return res.data;
     },
-    async isValidVerb(text) {
+    async isValidVerb(text, token) {
         let res = await axios.post(api + "/v", {
-            verb: text
+            verb: text,
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
         });
         return res.data === true;
     }
