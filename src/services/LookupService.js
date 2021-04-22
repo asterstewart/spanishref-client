@@ -8,8 +8,9 @@ export default {
             headers: {
                 'Authorization': 'Bearer ' + token
             },
-            data: { verb: verb }
+            data: { 'verb': verb }
         }
+        console.log(config);
         let res = await axios(config);
         return res.data;
     },
@@ -20,7 +21,7 @@ export default {
             headers: {
                 'Authorization': 'Bearer ' + token
             },
-            data: { text: text }
+            data: { 'text': text }
         }
         let res = await axios(config);
         return res.data;
@@ -32,7 +33,7 @@ export default {
             headers: {
                 'Authorization': 'Bearer ' + token
             },
-            data: { origin: code, text: text }
+            data: { 'origin': code, 'text': text }
         }
         let res = await axios(config);
         return res.data;
@@ -44,7 +45,7 @@ export default {
             headers: {
                 'Authorization': 'Bearer ' + token
             },
-            data: { verb: text }
+            data: { 'verb': text }
         }
         let res = await axios(config);
         return res.data === true;
