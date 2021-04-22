@@ -227,13 +227,16 @@ export default {
         return;
       }
       this.$set(this.resultLoading, 'loading', true);
-      LookupService.getVerbConjugation(lookup, this.getToken()).then((res => {
+      let t = await this.getToken();
+      LookupService.getVerbConjugation(lookup, t).then((res => {
         if (res === '') {
-          LookupService.getLanguage(lookup, this.getToken()).then ((res => {
+          t = await this.getToken();
+          LookupService.getLanguage(lookup, t).then ((res => {
             if (res === "es") {
               console.log('found spanish')
               // Translate to English and display
-              LookupService.translateText("es", lookup, this.getToken()).then((res => {
+              t = await this.getToken();
+              LookupService.translateText("es", lookup, t).then((res => {
                 this.headType = res;
                 this.subType = lookup;
                 this.$set(this.resultLoading, 'loadedTitle', true);
@@ -244,9 +247,11 @@ export default {
               }));
             } else if (res === "en") {
               console.log('found english')
-              LookupService.translateText("en", lookup, this.getToken()).then((res => {
+              t = await this.getToken();
+              LookupService.translateText("en", lookup, t).then((res => {
                 console.log(res);
-                LookupService.isValidVerb(res, this.getToken()).then((valid => {
+                t = await this.getToken();
+                LookupService.isValidVerb(res, t).then((valid => {
                   if (valid === true) {
                     this.lookupSave = res;
                     this.runLookup();
