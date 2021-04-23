@@ -198,11 +198,8 @@ export default {
       });
   return result;
 },
-    async getToken() {
-      await this.$auth.getTokenSilently().then((t) => {
-        console.log(t);
-        return t;
-      });
+    getToken() {
+      return this.$auth.getTokenSilently();
     },
     login() {
       this.$auth.loginWithRedirect();
