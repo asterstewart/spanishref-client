@@ -11,7 +11,6 @@ export default {
             },
             data: { 'verb': verb }
         }
-        console.log(config);
         let res = await axios(config);
         return res.data;
     },

@@ -150,7 +150,7 @@
       </div>
     </v-main>
 
-    <v-footer padless>
+    <v-footer class="mt-2" padless>
       <v-row  v-if="!$auth.loading && $auth.isAuthenticated" justify="center">            <v-btn @click="logout">Log out <v-icon right>mdi-logout</v-icon></v-btn>
         <br><br></v-row>
       <v-col
@@ -233,7 +233,6 @@ export default {
             });
             LookupService.getLanguage(lookup, t).then ((res => {
               if (res === "es") {
-                console.log('found spanish')
                 // Translate to English and display
                 this.getToken().then((token) => {
                   t = token;
@@ -244,22 +243,18 @@ export default {
                     this.$set(this.resultLoading, 'loading', false);
                     this.$set(this.resultLoading, 'loadedOnce', true);
                     this.$set(this.rules, 'required', true);
-                    console.log('translated spanish')
                   }));
                 });
               } else if (res === "en") {
-                console.log('found english')
                 this.getToken().then((token) => {
                   t = token;
                   LookupService.translateText("en", lookup, t).then((res => {
-                    console.log(res);
                     this.getToken().then((token) => {
                       t = token;
                       LookupService.isValidVerb(res, t).then((valid => {
                         if (valid === true) {
                           this.lookupSave = res;
                           this.runLookup();
-                          console.log('valid, ran lookup')
                         } else {
                           this.headType = res;
                           this.subType = lookup;
@@ -267,7 +262,6 @@ export default {
                           this.$set(this.resultLoading, 'loadedOnce', true);
                           this.$set(this.resultLoading, 'loading', false);
                           this.$set(this.rules, 'required', true);
-                          console.log('not valid, translated')
                         }
                       }));
                     });
@@ -372,7 +366,6 @@ export default {
                 break;
             }
           });
-          console.log('valid verb easy')
           this.$set(this.resultLoading, 'loading', false);
           this.$set(this.resultLoading, 'loaded', true);
           this.$set(this.resultLoading, 'loadedTitle', true);
