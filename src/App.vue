@@ -173,7 +173,6 @@ export default {
       this.$set(this.loginState, 'errorDetail', this.findGetParameter('error_description'));
       this.$set(this.loginState, 'errorState', true);
     }
-
   },
   data() {
     return {
@@ -225,167 +224,166 @@ export default {
         return;
       }
       this.$set(this.resultLoading, 'loading', true);
-      let t;
       this.getToken().then((token) => {
-        t = token;
-      });
-      LookupService.getVerbConjugation(lookup, t).then((res => {
-        if (res === '') {
-          this.getToken().then((token) => {
-            t = token;
-          });
-          LookupService.getLanguage(lookup, t).then ((res => {
-            if (res === "es") {
-              console.log('found spanish')
-              // Translate to English and display
-              this.getToken().then((token) => {
-                t = token;
-              });
-              LookupService.translateText("es", lookup, t).then((res => {
-                this.headType = res;
-                this.subType = lookup;
-                this.$set(this.resultLoading, 'loadedTitle', true);
-                this.$set(this.resultLoading, 'loading', false);
-                this.$set(this.resultLoading, 'loadedOnce', true);
-                this.$set(this.rules, 'required', true);
-                console.log('translated spanish')
-              }));
-            } else if (res === "en") {
-              console.log('found english')
-              this.getToken().then((token) => {
-                t = token;
-              });
-              LookupService.translateText("en", lookup, t).then((res => {
-                console.log(res);
+        let t = token;
+        LookupService.getVerbConjugation(lookup, t).then((res => {
+          if (res === '') {
+            this.getToken().then((token) => {
+              t = token;
+            });
+            LookupService.getLanguage(lookup, t).then ((res => {
+              if (res === "es") {
+                console.log('found spanish')
+                // Translate to English and display
                 this.getToken().then((token) => {
                   t = token;
-                });
-                LookupService.isValidVerb(res, t).then((valid => {
-                  if (valid === true) {
-                    this.lookupSave = res;
-                    this.runLookup();
-                    console.log('valid, ran lookup')
-                  } else {
+                  LookupService.translateText("es", lookup, t).then((res => {
                     this.headType = res;
                     this.subType = lookup;
                     this.$set(this.resultLoading, 'loadedTitle', true);
-                    this.$set(this.resultLoading, 'loadedOnce', true);
                     this.$set(this.resultLoading, 'loading', false);
+                    this.$set(this.resultLoading, 'loadedOnce', true);
                     this.$set(this.rules, 'required', true);
-                    console.log('not valid, translated')
-                  }
-                }));
-              }));
-            } else {
-              this.$set(this.rules, 'required', 'Please enter a valid verb or phrase.');
-              this.$set(this.resultLoading, 'loading', false);
+                    console.log('translated spanish')
+                  }));
+                });
+              } else if (res === "en") {
+                console.log('found english')
+                this.getToken().then((token) => {
+                  t = token;
+                  LookupService.translateText("en", lookup, t).then((res => {
+                    console.log(res);
+                    this.getToken().then((token) => {
+                      t = token;
+                      LookupService.isValidVerb(res, t).then((valid => {
+                        if (valid === true) {
+                          this.lookupSave = res;
+                          this.runLookup();
+                          console.log('valid, ran lookup')
+                        } else {
+                          this.headType = res;
+                          this.subType = lookup;
+                          this.$set(this.resultLoading, 'loadedTitle', true);
+                          this.$set(this.resultLoading, 'loadedOnce', true);
+                          this.$set(this.resultLoading, 'loading', false);
+                          this.$set(this.rules, 'required', true);
+                          console.log('not valid, translated')
+                        }
+                      }));
+                    });
+                  }));
+                });
+              } else {
+                this.$set(this.rules, 'required', 'Please enter a valid verb or phrase.');
+                this.$set(this.resultLoading, 'loading', false);
+              }
+            }));
+            return;
+          }
+          this.$set(this.rules, 'required', true);
+          this.headType = res.infinitive.infinitive;
+          this.subType = res.infinitive.infinitive_english;
+          this.info_text = res.performer + " | " + res.tense;
+          res.conjugations.filter(form => form.mood === "Imperativo Afirmativo").forEach(form => {
+            this.$set(this.imperativeForms.yo, 1, form.form_1s);
+            this.$set(this.imperativeForms.tu, 1, form.form_2s);
+            this.$set(this.imperativeForms.ud, 1, form.form_2p);
+            this.$set(this.imperativeForms.nos, 1, form.form_1p);
+            this.$set(this.imperativeForms.vos, 1, form.form_3s);
+            this.$set(this.imperativeForms.uds, 1, form.form_3p);
+          });
+          res.conjugations.filter(form => form.mood === "Imperativo Negativo").forEach(form => {
+            this.$set(this.imperativeForms.yo, 2, form.form_1s);
+            this.$set(this.imperativeForms.tu, 2, form.form_2s);
+            this.$set(this.imperativeForms.ud, 2, form.form_2p);
+            this.$set(this.imperativeForms.nos, 2, form.form_1p);
+            this.$set(this.imperativeForms.vos, 2, form.form_3s);
+            this.$set(this.imperativeForms.uds, 2, form.form_3p);
+          });
+          res.conjugations.filter(form => form.mood === "Subjuntivo").forEach(form => {
+            switch (form.tense) {
+              case "Presente":
+                this.$set(this.subjunctiveForms.yo, 1, form.form_1s);
+                this.$set(this.subjunctiveForms.tu, 1, form.form_2s);
+                this.$set(this.subjunctiveForms.ud, 1, form.form_3s);
+                this.$set(this.subjunctiveForms.nos, 1, form.form_1p);
+                this.$set(this.subjunctiveForms.vos, 1, form.form_2p);
+                this.$set(this.subjunctiveForms.uds, 1, form.form_3p);
+                break;
+              case "Imperfecto":
+                this.$set(this.subjunctiveForms.yo, 2, form.form_1s);
+                this.$set(this.subjunctiveForms.tu, 2, form.form_2s);
+                this.$set(this.subjunctiveForms.ud, 2, form.form_3s);
+                this.$set(this.subjunctiveForms.nos, 2, form.form_1p);
+                this.$set(this.subjunctiveForms.vos, 2, form.form_2p);
+                this.$set(this.subjunctiveForms.uds, 2, form.form_3p);
+                break;
+              case "Futuro":
+                this.$set(this.subjunctiveForms.yo, 3, form.form_1s);
+                this.$set(this.subjunctiveForms.tu, 3, form.form_2s);
+                this.$set(this.subjunctiveForms.ud, 3, form.form_3s);
+                this.$set(this.subjunctiveForms.nos, 3, form.form_1p);
+                this.$set(this.subjunctiveForms.vos, 3, form.form_2p);
+                this.$set(this.subjunctiveForms.uds, 3, form.form_3p);
+                break;
             }
-          }));
-          return;
-        }
-        this.$set(this.rules, 'required', true);
-        this.headType = res.infinitive.infinitive;
-        this.subType = res.infinitive.infinitive_english;
-        this.info_text = res.performer + " | " + res.tense;
-        res.conjugations.filter(form => form.mood === "Imperativo Afirmativo").forEach(form => {
-          this.$set(this.imperativeForms.yo, 1, form.form_1s);
-          this.$set(this.imperativeForms.tu, 1, form.form_2s);
-          this.$set(this.imperativeForms.ud, 1, form.form_2p);
-          this.$set(this.imperativeForms.nos, 1, form.form_1p);
-          this.$set(this.imperativeForms.vos, 1, form.form_3s);
-          this.$set(this.imperativeForms.uds, 1, form.form_3p);
-        });
-        res.conjugations.filter(form => form.mood === "Imperativo Negativo").forEach(form => {
-          this.$set(this.imperativeForms.yo, 2, form.form_1s);
-          this.$set(this.imperativeForms.tu, 2, form.form_2s);
-          this.$set(this.imperativeForms.ud, 2, form.form_2p);
-          this.$set(this.imperativeForms.nos, 2, form.form_1p);
-          this.$set(this.imperativeForms.vos, 2, form.form_3s);
-          this.$set(this.imperativeForms.uds, 2, form.form_3p);
-        });
-        res.conjugations.filter(form => form.mood === "Subjuntivo").forEach(form => {
-          switch (form.tense) {
-            case "Presente":
-              this.$set(this.subjunctiveForms.yo, 1, form.form_1s);
-              this.$set(this.subjunctiveForms.tu, 1, form.form_2s);
-              this.$set(this.subjunctiveForms.ud, 1, form.form_3s);
-              this.$set(this.subjunctiveForms.nos, 1, form.form_1p);
-              this.$set(this.subjunctiveForms.vos, 1, form.form_2p);
-              this.$set(this.subjunctiveForms.uds, 1, form.form_3p);
-              break;
-            case "Imperfecto":
-              this.$set(this.subjunctiveForms.yo, 2, form.form_1s);
-              this.$set(this.subjunctiveForms.tu, 2, form.form_2s);
-              this.$set(this.subjunctiveForms.ud, 2, form.form_3s);
-              this.$set(this.subjunctiveForms.nos, 2, form.form_1p);
-              this.$set(this.subjunctiveForms.vos, 2, form.form_2p);
-              this.$set(this.subjunctiveForms.uds, 2, form.form_3p);
-              break;
-            case "Futuro":
-              this.$set(this.subjunctiveForms.yo, 3, form.form_1s);
-              this.$set(this.subjunctiveForms.tu, 3, form.form_2s);
-              this.$set(this.subjunctiveForms.ud, 3, form.form_3s);
-              this.$set(this.subjunctiveForms.nos, 3, form.form_1p);
-              this.$set(this.subjunctiveForms.vos, 3, form.form_2p);
-              this.$set(this.subjunctiveForms.uds, 3, form.form_3p);
-              break;
-          }
-        });
-        res.conjugations.filter(form => form.mood === 'Indicativo').forEach(form => {
-          switch (form.tense) {
-            case "Presente":
-              this.$set(this.indicativeForms.yo, 1, form.form_1s);
-              this.$set(this.indicativeForms.tu, 1, form.form_2s);
-              this.$set(this.indicativeForms.ud, 1, form.form_3s);
-              this.$set(this.indicativeForms.nos, 1, form.form_1p);
-              this.$set(this.indicativeForms.vos, 1, form.form_2p);
-              this.$set(this.indicativeForms.uds, 1, form.form_3p);
-              break;
-            case "Pretérito":
-              this.$set(this.indicativeForms.yo, 2, form.form_1s);
-              this.$set(this.indicativeForms.tu, 2, form.form_2s);
-              this.$set(this.indicativeForms.ud, 2, form.form_3s);
-              this.$set(this.indicativeForms.nos, 2, form.form_1p);
-              this.$set(this.indicativeForms.vos, 2, form.form_2p);
-              this.$set(this.indicativeForms.uds, 2, form.form_3p);
-              break;
-            case "Imperfecto":
-              this.$set(this.indicativeForms.yo, 3, form.form_1s);
-              this.$set(this.indicativeForms.tu, 3, form.form_2s);
-              this.$set(this.indicativeForms.ud, 3, form.form_3s);
-              this.$set(this.indicativeForms.nos, 3, form.form_1p);
-              this.$set(this.indicativeForms.vos, 3, form.form_2p);
-              this.$set(this.indicativeForms.uds, 3, form.form_3p);
-              break;
-            case "Condicional":
-              this.$set(this.indicativeForms.yo, 5, form.form_1s);
-              this.$set(this.indicativeForms.tu, 5, form.form_2s);
-              this.$set(this.indicativeForms.ud, 5, form.form_3s);
-              this.$set(this.indicativeForms.nos, 5, form.form_1p);
-              this.$set(this.indicativeForms.vos, 5, form.form_2p);
-              this.$set(this.indicativeForms.uds, 5, form.form_3p);
-              break;
-            case "Futuro":
-              this.$set(this.indicativeForms.yo, 4, form.form_1s);
-              this.$set(this.indicativeForms.tu, 4, form.form_2s);
-              this.$set(this.indicativeForms.ud, 4, form.form_3s);
-              this.$set(this.indicativeForms.nos, 4, form.form_1p);
-              this.$set(this.indicativeForms.vos, 4, form.form_2p);
-              this.$set(this.indicativeForms.uds, 4, form.form_3p);
-              break;
-          }
-        });
-        console.log('valid verb easy')
-        this.$set(this.resultLoading, 'loading', false);
-        this.$set(this.resultLoading, 'loaded', true);
-        this.$set(this.resultLoading, 'loadedTitle', true);
-        this.$set(this.resultLoading, 'loadedOnce', true);
-        this.$set(this.resultLoading, 'infoLoaded', true);
-      })).catch((e) => {
-        this.$set(this.rules, 'required', 'Sorry, something went wrong.');
-        this.$set(this.resultLoading, 'loading', false);
-        console.log(e);
-      })
+          });
+          res.conjugations.filter(form => form.mood === 'Indicativo').forEach(form => {
+            switch (form.tense) {
+              case "Presente":
+                this.$set(this.indicativeForms.yo, 1, form.form_1s);
+                this.$set(this.indicativeForms.tu, 1, form.form_2s);
+                this.$set(this.indicativeForms.ud, 1, form.form_3s);
+                this.$set(this.indicativeForms.nos, 1, form.form_1p);
+                this.$set(this.indicativeForms.vos, 1, form.form_2p);
+                this.$set(this.indicativeForms.uds, 1, form.form_3p);
+                break;
+              case "Pretérito":
+                this.$set(this.indicativeForms.yo, 2, form.form_1s);
+                this.$set(this.indicativeForms.tu, 2, form.form_2s);
+                this.$set(this.indicativeForms.ud, 2, form.form_3s);
+                this.$set(this.indicativeForms.nos, 2, form.form_1p);
+                this.$set(this.indicativeForms.vos, 2, form.form_2p);
+                this.$set(this.indicativeForms.uds, 2, form.form_3p);
+                break;
+              case "Imperfecto":
+                this.$set(this.indicativeForms.yo, 3, form.form_1s);
+                this.$set(this.indicativeForms.tu, 3, form.form_2s);
+                this.$set(this.indicativeForms.ud, 3, form.form_3s);
+                this.$set(this.indicativeForms.nos, 3, form.form_1p);
+                this.$set(this.indicativeForms.vos, 3, form.form_2p);
+                this.$set(this.indicativeForms.uds, 3, form.form_3p);
+                break;
+              case "Condicional":
+                this.$set(this.indicativeForms.yo, 5, form.form_1s);
+                this.$set(this.indicativeForms.tu, 5, form.form_2s);
+                this.$set(this.indicativeForms.ud, 5, form.form_3s);
+                this.$set(this.indicativeForms.nos, 5, form.form_1p);
+                this.$set(this.indicativeForms.vos, 5, form.form_2p);
+                this.$set(this.indicativeForms.uds, 5, form.form_3p);
+                break;
+              case "Futuro":
+                this.$set(this.indicativeForms.yo, 4, form.form_1s);
+                this.$set(this.indicativeForms.tu, 4, form.form_2s);
+                this.$set(this.indicativeForms.ud, 4, form.form_3s);
+                this.$set(this.indicativeForms.nos, 4, form.form_1p);
+                this.$set(this.indicativeForms.vos, 4, form.form_2p);
+                this.$set(this.indicativeForms.uds, 4, form.form_3p);
+                break;
+            }
+          });
+          console.log('valid verb easy')
+          this.$set(this.resultLoading, 'loading', false);
+          this.$set(this.resultLoading, 'loaded', true);
+          this.$set(this.resultLoading, 'loadedTitle', true);
+          this.$set(this.resultLoading, 'loadedOnce', true);
+          this.$set(this.resultLoading, 'infoLoaded', true);
+        })).catch((e) => {
+          this.$set(this.rules, 'required', 'Sorry, something went wrong.');
+          this.$set(this.resultLoading, 'loading', false);
+          console.log(e);
+        })
+      });
     }
   }
 }

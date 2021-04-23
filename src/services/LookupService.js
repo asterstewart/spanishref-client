@@ -1,5 +1,6 @@
 import axios from "axios"
 const api = "https://api.sr.nathanstewart.me";
+
 export default {
     async getVerbConjugation(verb, token) {
         let config = {
