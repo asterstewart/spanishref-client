@@ -230,7 +230,6 @@ export default {
           if (res === '') {
             this.getToken().then((token) => {
               t = token;
-            });
             LookupService.getLanguage(lookup, t).then ((res => {
               if (res === "es") {
                 // Translate to English and display
@@ -272,6 +271,7 @@ export default {
                 this.$set(this.resultLoading, 'loading', false);
               }
             }));
+            });
             return;
           }
           this.$set(this.rules, 'required', true);
