@@ -212,7 +212,7 @@ export default {
       this.$set(this.resultLoading, 'loaded', false);
       this.$set(this.resultLoading, 'loading', true);
       this.$set(this.resultLoading, 'loadedTitle', false);
-      this.$set(this.resultLoading, 'infoLoaded', true);
+      this.$set(this.resultLoading, 'infoLoaded', false);
       if (event) {
         event.preventDefault();
       }
