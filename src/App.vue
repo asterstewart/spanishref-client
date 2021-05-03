@@ -150,7 +150,7 @@
     </v-main>
 
     <v-footer class="mt-2" padless>
-      <v-row  v-if="!$auth.loading && $auth.isAuthenticated" justify="center">            <v-btn @click="logout">Log out <v-icon right>mdi-logout</v-icon></v-btn>
+      <v-row  v-if="(!$auth.loading && $auth.isAuthenticated) || loginState.error" justify="center">            <v-btn @click="logout">Log out <v-icon right>mdi-logout</v-icon></v-btn>
         <br><br></v-row>
       <v-col
           class="text-center"
@@ -208,6 +208,7 @@ export default {
       });
     },
     runLookup: function (event) {
+      console.log("Running lookup")
       this.$set(this.resultLoading, 'loaded', false);
       this.$set(this.resultLoading, 'loading', true);
       this.$set(this.resultLoading, 'loadedTitle', false);
@@ -225,15 +226,20 @@ export default {
       this.$set(this.resultLoading, 'loading', true);
       this.getToken().then((token) => {
         let t = token;
+        console.log("Asking for verb")
         LookupService.getVerbConjugation(lookup, t).then((res => {
           if (res === '') {
+            console.log("Invalid verb");
             this.getToken().then((token) => {
               t = token;
+              console.log("Asking for language");
             LookupService.getLanguage(lookup, t).then ((res => {
               if (res === "es") {
+                console.log("Found spanish");
                 // Translate to English and display
                 this.getToken().then((token) => {
                   t = token;
+                  console.log("Translating spen");
                   LookupService.translateText("es", lookup, t).then((res => {
                     this.headType = res;
                     this.subType = lookup;
@@ -246,14 +252,19 @@ export default {
               } else if (res === "en") {
                 this.getToken().then((token) => {
                   t = token;
+                  t = token;console.log("Translating ensp");
                   LookupService.translateText("en", lookup, t).then((res => {
                     this.getToken().then((token) => {
                       t = token;
+                      console.log("Valid translated verb?");
                       LookupService.isValidVerb(res, t).then((valid => {
+                        console.log("Got valid verb");
                         if (valid === true) {
                           this.lookupSave = res;
+                          console.log("running lookup on " + this.lookupSave);
                           this.runLookup();
                         } else {
+                          console.log("Not valid verb");
                           this.headType = res;
                           this.subType = lookup;
                           this.$set(this.resultLoading, 'loadedTitle', true);
@@ -266,13 +277,17 @@ export default {
                   }));
                 });
               } else {
+                console.log("All failed");
                 this.$set(this.rules, 'required', 'Please enter a valid verb or phrase.');
                 this.$set(this.resultLoading, 'loading', false);
               }
             }));
             });
+            console.log("Returning initial statement");
+            console.log("Am I preventing conjugations from being displayed?");
             return;
           }
+          console.log("Showing conjugations");
           this.$set(this.rules, 'required', true);
           this.headType = res.infinitive.infinitive;
           this.subType = res.infinitive.infinitive_english;
