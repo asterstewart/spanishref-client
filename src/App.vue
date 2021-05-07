@@ -8,7 +8,7 @@
           <v-container>
             <v-alert  width="50%" style="margin: auto; margin-bottom: 30px;" prominent dense outlined type="error" v-if="loginState.error"><span class="text-h6">{{ loginState.errorDetail }} Try clearing your cookies.</span></v-alert>
             <v-row justify="center">
-              <v-btn :loading="loading" :disabled="loading" @click.native="loader = 'loading'" @click="login" color="primary">Log in<v-icon right>mdi-account-circle</v-icon></v-btn>
+              <v-btn v-if="!loginState.error" :loading="loading" :disabled="loading" @click="loader = 'loading'; login()" color="primary">Log in<v-icon right>mdi-account-circle</v-icon></v-btn>
             </v-row>
           </v-container>
         </v-container>
