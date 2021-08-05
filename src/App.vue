@@ -156,7 +156,7 @@
           class="text-center"
           cols="12"
       >
-        Created by Nathan Stewart in 2021. Credit to <a target="_blank" href="https://github.com/ghidinelli/fred-jehle-spanish-verbs">Spanish Verb Database</a> by Fred Jehle and Brian Ghidinelli. This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/3.0/">Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License</a> and available on <a target="_blank" href="https://github.com/ntstew/spanishref-client">Github</a>.
+        Created by Aster Stewart in 2021. Credit to <a target="_blank" href="https://github.com/ghidinelli/fred-jehle-spanish-verbs">Spanish Verb Database</a> by Fred Jehle and Brian Ghidinelli. This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/3.0/">Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License</a> and available on <a target="_blank" href="https://github.com/ntstew/spanishref-client">Github</a>.
       </v-col>
     </v-footer>
   </v-app>
